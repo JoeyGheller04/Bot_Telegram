@@ -1,8 +1,8 @@
 <?php
 
 require './vendor/autoload.php';
-// require_once 'db-config.php';
-// use Illuminate\Database\Capsule\Manager as Capsule;
+require_once './db-config.php';
+use Illuminate\Database\Capsule\Manager as Capsule;
 
 use Telegram\Bot\Api;
 
@@ -29,7 +29,7 @@ while (true) {
         $text = $arr["text"];
         $photo = $arr["photo"];
 
-        // InsertRecord($username, $chatId, $command, $text);
+        InsertRecord($username, $chatId, $command, $text);
 
         $response = $client->sendPhoto([
             'chat_id' => $chatId,
@@ -110,33 +110,33 @@ function GetAnime()
     return $arr;
 }
 
-// function InsertRecord($username, $chatId, $command, $reply){
+function InsertRecord($username, $chatId, $command, $reply){
 
-//     if (!Capsule::schema()->hasTable('records')) {
+    if (!Capsule::schema()->hasTable('records')) {
 
-//         Capsule::schema()->create('records', function ($table) {
+        Capsule::schema()->create('records', function ($table) {
     
-//             $table->increments('id');
+            $table->increments('id');
     
-//             $table->string('username');
+            $table->string('username');
     
-//             $table->string('chatId');
+            $table->string('chatId');
     
-//             $table->string('command');
+            $table->string('command');
 
-//             $table->string('reply');
+            $table->string('reply');
 
-//             $table->timestamps();
+            $table->timestamps();
     
-//         });
+        });
     
-//     }
+    }
     
-//     Capsule::table('users')->insert([
+    Capsule::table('records')->insert([
     
-//         'username' => $username,
-//         'chatId' => $chatId,
-//         'command' => $command,
-//         'reply' => $reply
-//     ]);
-// }
+        'username' => $username,
+        'chatId' => $chatId,
+        'command' => $command,
+        'reply' => $reply
+    ]);
+}
