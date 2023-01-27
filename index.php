@@ -19,13 +19,16 @@ while (true) {
         $last_update_id = $r->getUpdateId() + 1;
         $message = $r->getMessage();
         $chatId = $message->getChat()->getId();
+        
+        
+        $arr = Command($message->getText());
+        $text = $arr["text"];
+        $photo = $arr["photo"];
 
-        $text = "text";
-        $text = Command($message->getText());
-
-        $response = $client->sendMessage([
+        $response = $client->sendPhoto( [
             'chat_id' => $chatId,
-            'text' => $text
+            'photo' => $photo,
+            'caption' => $text
         ]);
     }
 }
@@ -34,26 +37,43 @@ function Command($comando)
 {
     switch ($comando) {
         case "/start":
-            return "Comandi disponibili\n/start per comprendere\n/simp per la verità\n/sivaaletto per andare a letto\n/maniglio per ordinare un kebabon\n";
+            return "Comandi disponibili\n/start per comprendere\n/anime per conoscere\n/maniglio per ordinare un kebabon\n";
             break;
-        case "/simp":
-            return "Joey Gheller";
-            break;
-        case "/sivaaletto?":
-            return "de pefforza";
+        case "/anime":
+            return GetAnime();
             break;
         case "/maniglio":
-            return "il più forte";
-            InsertRecord();
+            return GetHandle();
             break;
         default:
-            return "qualcosa è andato storto";
+            return "Comando non riconosciuto, prova con /start";
             break;
     }
 }
 
-function InsertRecord()
-{
-    require_once("./db-queries.php");
-    Insert("A", "a", 123, "a", "a");
+function GetAnime(){
+
+    $random = rand(1,1000);
+    $api_url = 'https://kitsu.io/api/edge/anime/'.$random;
+
+    $json_data = file_get_contents($api_url);
+
+    $response_data = json_decode($json_data);
+
+    $data = $response_data->data;
+
+    $anime_poster = $data->{"attributes"}->{"posterImage"}->{"large"};
+    $anime_name = $data->{"attributes"}->{"canonicalTitle"};
+    $anime_nameJP = $data->{"attributes"}->{"titles"}->{"ja_jp"};
+    $anime_rating = "Rating: " . $data->{"attributes"}->{"averageRating"};
+    $anime_description = $data->{"attributes"}->{"synopsis"};
+
+    $text = $anime_name . "\n" . $anime_nameJP . "\n" . $anime_rating . "\n" ;
+
+    $arr = Array("photo" => $anime_poster, "text" => $text );
+    return $arr;
+}
+
+function GetHandle(){
+    return Array("photo" => "./ph/194.jpg", "text" =>"kebab ordinato de pefforza" );
 }
