@@ -19,16 +19,15 @@ while (true) {
         $last_update_id = $r->getUpdateId() + 1;
         $message = $r->getMessage();
         $chatId = $message->getChat()->getId();
-        
-        
+
         $arr = Command($message->getText());
         $text = $arr["text"];
         $photo = $arr["photo"];
 
-        $response = $client->sendPhoto( [
+        $response = $client->sendPhoto([
             'chat_id' => $chatId,
             'photo' => $photo,
-            'caption' => $text
+            'caption' => $text,
         ]);
     }
 }
@@ -37,7 +36,7 @@ function Command($comando)
 {
     switch ($comando) {
         case "/start":
-            return "Comandi disponibili\n/start per comprendere\n/anime per conoscere\n/maniglio per ordinare un kebabon\n";
+            return GetStarted();
             break;
         case "/anime":
             return GetAnime();
@@ -45,35 +44,54 @@ function Command($comando)
         case "/maniglio":
             return GetHandle();
             break;
+        case "/costa":
+            return GetCosta();
+            break;
         default:
             return "Comando non riconosciuto, prova con /start";
             break;
     }
 }
 
-function GetAnime(){
+function GetStarted()
+{
+    return array("photo" => "./ph/dario.png", "text" => "Comandi disponibili\n/start per comprendere\n/anime per conoscere\n/maniglio per ordinare un kebabon\n/costa per hackerare i server del MC Donald");
+}
 
-    $random = rand(1,1000);
-    $api_url = 'https://kitsu.io/api/edge/anime/'.$random;
+function GetAnime()
+{
 
-    $json_data = file_get_contents($api_url);
+    $rating = 60;
+    while ($rating < 80) {
+        $random = rand(1, 100);
 
-    $response_data = json_decode($json_data);
+        //get data from the online api
+        $api_url = 'https://kitsu.io/api/edge/anime/' . $random;
+        $json_data = file_get_contents($api_url);
+        $response_data = json_decode($json_data);
+        $data = $response_data->data;
 
-    $data = $response_data->data;
+        //create the message
+        $rating = $data->{"attributes"}->{"averageRating"};
+        $anime_poster = $data->{"attributes"}->{"posterImage"}->{"large"};
+        $anime_name = $data->{"attributes"}->{"canonicalTitle"};
+        $anime_nameJP = $data->{"attributes"}->{"titles"}->{"ja_jp"};
+        $anime_rating = "Rating: " . $rating;
+        $anime_description = $data->{"attributes"}->{"synopsis"};
 
-    $anime_poster = $data->{"attributes"}->{"posterImage"}->{"large"};
-    $anime_name = $data->{"attributes"}->{"canonicalTitle"};
-    $anime_nameJP = $data->{"attributes"}->{"titles"}->{"ja_jp"};
-    $anime_rating = "Rating: " . $data->{"attributes"}->{"averageRating"};
-    $anime_description = $data->{"attributes"}->{"synopsis"};
+        $text = $anime_name . "\n" . $anime_nameJP . "\n" . $anime_rating . "\n";
 
-    $text = $anime_name . "\n" . $anime_nameJP . "\n" . $anime_rating . "\n" ;
-
-    $arr = Array("photo" => $anime_poster, "text" => $text );
+        $arr = array("photo" => $anime_poster, "text" => $text, "id" => $random);
+    }
     return $arr;
 }
 
-function GetHandle(){
-    return Array("photo" => "./ph/194.jpg", "text" =>"kebab ordinato de pefforza" );
+function GetHandle()
+{
+    return array("photo" => "./ph/maniglio.jpg", "text" => "kebab ordinato de pefforza");
+}
+
+function GetCosta()
+{
+    return array("photo" => "./ph/costa.jpg", "text" => "il più grande hacker di tutti i tempi");
 }
