@@ -1,6 +1,8 @@
 <?php
 
 require './vendor/autoload.php';
+// require_once 'db-config.php';
+// use Illuminate\Database\Capsule\Manager as Capsule;
 
 use Telegram\Bot\Api;
 
@@ -18,16 +20,21 @@ while (true) {
 
         $last_update_id = $r->getUpdateId() + 1;
         $message = $r->getMessage();
+
+        $username = $message->getChat()->getUsername();
+        $command = $message->getText();
         $chatId = $message->getChat()->getId();
 
         $arr = Command($message->getText());
         $text = $arr["text"];
         $photo = $arr["photo"];
 
+        // InsertRecord($username, $chatId, $command, $text);
+
         $response = $client->sendPhoto([
             'chat_id' => $chatId,
             'photo' => $photo,
-            'caption' => $text,
+            'caption' => $text
         ]);
     }
 }
@@ -38,14 +45,26 @@ function Command($comando)
         case "/start":
             return GetStarted();
             break;
+        case "/meme":
+            return GetMemed();
+            break;
         case "/anime":
             return GetAnime();
             break;
         case "/maniglio":
-            return GetHandle();
+            return array("photo" => "./ph/maniglio.jpg", "text" => "kebab ordinato de pefforza");
             break;
         case "/costa":
-            return GetCosta();
+            return array("photo" => "./ph/costa.jpg", "text" => "il più grande hacker di tutti i tempi");
+            break;
+        case "/simp":
+            return array("photo" => "./ph/gheller.jpg", "text" => "il signore del puzzo");
+            break;
+        case "/rappresentante":
+            return array("photo" => "./ph/chiara.jpg", "text" => "salutala perchè non la vedrai mai più");
+            break;
+        case "/trio":
+            return array("photo" => "./ph/trio.jpg", "text" => "il triumvirato");
             break;
         default:
             return "Comando non riconosciuto, prova con /start";
@@ -55,7 +74,12 @@ function Command($comando)
 
 function GetStarted()
 {
-    return array("photo" => "./ph/dario.png", "text" => "Comandi disponibili\n/start per comprendere\n/anime per conoscere\n/maniglio per ordinare un kebabon\n/costa per hackerare i server del MC Donald");
+    return array("photo" => "./ph/dario.png", "text" => "Comandi disponibili\n/start per comprendere\n/anime per conoscere\n/meme per l'allegrezza");
+}
+
+function GetMemed()
+{
+    return array("photo" => "./ph/dario.png", "text" => "Comandi disponibili\n/start per comprendere\n/maniglio per ordinare un kebabon\n/costa per hackerare i server del MC Donald\n/simp per simpare\n/trio per scatenare l'apocalisse\n/rappresentante per andare fuori aula");
 }
 
 function GetAnime()
@@ -86,12 +110,33 @@ function GetAnime()
     return $arr;
 }
 
-function GetHandle()
-{
-    return array("photo" => "./ph/maniglio.jpg", "text" => "kebab ordinato de pefforza");
-}
+// function InsertRecord($username, $chatId, $command, $reply){
 
-function GetCosta()
-{
-    return array("photo" => "./ph/costa.jpg", "text" => "il più grande hacker di tutti i tempi");
-}
+//     if (!Capsule::schema()->hasTable('records')) {
+
+//         Capsule::schema()->create('records', function ($table) {
+    
+//             $table->increments('id');
+    
+//             $table->string('username');
+    
+//             $table->string('chatId');
+    
+//             $table->string('command');
+
+//             $table->string('reply');
+
+//             $table->timestamps();
+    
+//         });
+    
+//     }
+    
+//     Capsule::table('users')->insert([
+    
+//         'username' => $username,
+//         'chatId' => $chatId,
+//         'command' => $command,
+//         'reply' => $reply
+//     ]);
+// }
